@@ -6,15 +6,31 @@ class Alarm(object):
 
     def __init__(self, title: str):
         self.__title = title
+        self.hour = int(time.strftime("%H", time.localtime()))
+        self.minute = int(time.strftime("%M", time.localtime()))
 
     def set_title(self, title):
         self.__title = title
 
-    def set_time(self, time: time.struct_time):
-        self.__ring_time = time
+    def set_minute(self, minute):
+        if minute == -1:
+            minute = 59
+        elif minute == 60:
+            minute = 0
+        self.minute = minute
 
-    def get_time(self):
-        return self.__ring_time
+    def set_hour(self, hour):
+        if hour == 24:
+            hour = 0
+        if hour == -1:
+            hour = 23
+        self.hour = hour
+
+    def get_hour(self):
+        return self.hour
+
+    def get_minute(self):
+        return self.minute
 
     def get_title(self):
         return self.__title
@@ -28,40 +44,14 @@ class Alarm(object):
     def deactivate(self):
         self.__activated = False
 
-    def __compare_formatted(self, format):
-        time1 = time.strftime(format, time.localtime())
-        time2 = time.strftime(format, self.__ring_time)
+    def __compare_formatted(self,):
+        time1 = time.strftime("%H%M", time.localtime())
+        time2 = str(self.hour)+str(self.minute)
         return time1 == time2
 
     def tick(self):
-        if self.__activated:
-            if self.__compare_formatted("%H:%M"):
-                self.__ring()
-
-    def __ring(self):
-        pass
+        if self.__compare_formatted():
+            return "RING"
+        return "0"
 
 
-class AlarmOnce(Alarm):
-    """Alarm that rings once at given date"""
-
-    def tick(self):
-        if self.__activated:
-            if self.__compare_formatted("%H:%M %x"):
-                self.__ring()
-
-
-class AlarmDOW(Alarm):
-    """Alarm that repeats on specified days of week"""
-
-    def set_DOW(self, days=(1,1,1,1,1,1,1)):
-        self.__days_of_week = days
-
-    def get_DOW(self):
-        return self.__days_of_week
-
-    def tick(self):
-        if self.__activated:
-            if self.__compare_formatted("%H:%M"):
-                if self.__days_of_week[time.strftime("w", time.localtime())]:
-                    self.__ring()
